@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>قواعد الجمع بين الخدمات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#17202B; --muted:#4B5563; --soft:#6B7280;
+  --line:#E3E7ED; --line2:#D5DBE3; --accent:#0F766E; --accent-bg:#F0FAF8;
+  --yes:#15803D; --yes-bg:#ECFDF3; --yes-bd:#BBE5C8; --yes-ink:#14532D;
+  --wait:#B45309; --wait-bg:#FFF7E6; --wait-bd:#F3D9A4; --wait-ink:#78350F;
+  --no:#B91C1C; --no-bg:#FEF1F1; --no-bd:#F2C4C4; --no-ink:#7F1D1D;
+  --na:#4B5563; --na-bg:#F1F3F6; --na-bd:#D5DBE3;
+  --s-bg:#EAF1FF; --s-ink:#1E40AF; --d-bg:#F1ECFF; --d-ink:#5B21B6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;line-height:1.65}
+button,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3,h4,h5,p{margin:0}
+ul{margin:0;padding:0 18px 0 0}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 72px;display:flex;flex-direction:column;gap:22px}
+
+/* header + tabs */
+.top{display:flex;flex-direction:column;gap:14px}
+.top h1{font-size:28px;line-height:1.3}
+.top p{color:var(--muted);font-size:16px}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px;overflow-x:auto}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border:0;border-radius:11px;background:transparent;font-weight:700;font-size:15px;color:var(--muted);white-space:nowrap}
+.tab:hover{background:#F1F3F6}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff}
+.tab .tn{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;background:#E8EBF0;color:var(--ink)}
+.tab[aria-selected="true"] .tn{background:#fff;color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.panel h2{font-size:20px}
+.hint{font-size:14px;color:var(--soft)}
+.lead{font-size:16px;color:var(--muted)}
+
+/* shared chips */
+.tag{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap;line-height:1.7}
+.tag.s{background:var(--s-bg);color:var(--s-ink)} .tag.d{background:var(--d-bg);color:var(--d-ink)}
+.chan{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap;line-height:1.7}
+.chan.ben{background:var(--accent-bg);color:var(--accent)}
+.chan.assoc{background:var(--na-bg);color:var(--na)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap}
+.badge.yes{background:var(--yes-bg);color:var(--yes)} .badge.wait{background:var(--wait-bg);color:var(--wait)} .badge.no{background:var(--no-bg);color:var(--no)} .badge.na{background:var(--na-bg);color:var(--na)}
+.badge small{font-weight:500;opacity:.85}
+.ico{flex:none;display:inline-flex;align-items:center;justify-content:center}
+
+/* association callout */
+.callout{display:flex;gap:14px;align-items:flex-start;background:#FFFFFF;border:1.5px dashed #9AA3AF;border-radius:16px;padding:16px 18px}
+.callout .ci{width:44px;height:44px;border-radius:12px;background:var(--na-bg);color:var(--na);display:flex;align-items:center;justify-content:center;flex:none}
+.callout h3{font-size:17px;margin-bottom:4px}
+.callout p{font-size:15px;color:var(--muted)}
+.callout b{color:var(--ink)}
+
+/* ===== TAB 1: cards ===== */
+.minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.mini{display:flex;flex-direction:column;gap:8px;text-align:right;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);min-height:100px;transition:border-color .15s,background .15s}
+.mini:hover{border-color:#B8C2CE}
+.mini[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg)}
+.mini.assoc{border-style:dashed;background:#FBFBFC}
+.mini.assoc[aria-pressed="true"]{border-color:var(--na);border-style:solid;background:var(--na-bg)}
+.mini .mt{display:flex;align-items:center;gap:10px}
+.mini .mi{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.g-s{background:var(--s-bg);color:var(--s-ink)} .g-d{background:var(--d-bg);color:var(--d-ink)} .g-a{background:var(--na-bg);color:var(--na)}
+.mini .mn{font-weight:700;font-size:15.5px;line-height:1.35}
+.mini .mc{display:flex;gap:10px;font-size:13px;font-weight:600;flex-wrap:wrap}
+.mc .y{color:var(--yes)} .mc .w{color:var(--wait)} .mc .n{color:var(--no)}
+
+.detail{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;scroll-margin-top:12px}
+.d-head{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;padding:24px;border-bottom:1px solid var(--line)}
+.d-head.assoc{background:repeating-linear-gradient(135deg,#FAFAFB 0 10px,#F4F5F7 10px 20px)}
+.d-icon{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none}
+.d-title{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.d-tags{display:flex;gap:8px;flex-wrap:wrap}
+.d-title h2{font-size:28px;line-height:1.3}
+.d-brief{font-size:17px;color:var(--muted)}
+.d-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line2);background:#fff;font-weight:700;font-size:14.5px}
+.btn:hover{border-color:#9AA3AF}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#115E59}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--accent);padding:0 6px}
+.d-body{padding:24px;display:flex;flex-direction:column;gap:30px}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.fact{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;background:#FCFCFD}
+.f-label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--soft)}
+.fact p,.fact li{font-size:15.5px}
+
+.d-sec{display:flex;flex-direction:column;gap:14px}
+.d-sec>h3{display:flex;align-items:center;gap:10px;font-size:20px}
+.num{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+.sec-lead{font-size:15.5px;color:var(--muted)}
+.sec-lead b{color:var(--ink)}
+
+.roles{display:flex;flex-wrap:wrap;gap:8px}
+.role{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap;line-height:1.7}
+.r-ben{background:#E6F6F3;color:#0F5F58} .r-sys{background:#EDEFF3;color:#374151} .r-res{background:#E8F0FE;color:#1E3A8A} .r-com{background:#F3EAFE;color:#5B21B6} .r-exe{background:#FEF3E2;color:#92400E}
+
+.flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.fs{position:relative;padding:0 56px 18px 0}
+.fs:last-child{padding-bottom:0}
+.fs::before{content:"";position:absolute;right:19px;top:40px;bottom:0;width:2px;background:var(--line)}
+.fs:last-child::before{display:none}
+.fs-num{position:absolute;right:0;top:0;width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:700}
+.fs.sys .fs-num{border-color:var(--accent);color:var(--accent)}
+.fs-card{border:1px solid var(--line);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:6px;background:#fff}
+.fs.sys .fs-card{background:var(--accent-bg);border-color:#BFE3DD}
+.fs-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fs-top strong{font-size:16.5px}
+.fs-card p{font-size:15px;color:var(--muted)}
+.fs-st{font-size:13.5px;color:var(--soft)}
+.fs-st b{color:var(--ink);background:#F1F3F6;border-radius:6px;padding:1px 8px;font-weight:600}
+
+.sum3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sum{border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;border:1px solid}
+.sum.yes{background:var(--yes-bg);border-color:var(--yes-bd)} .sum.wait{background:var(--wait-bg);border-color:var(--wait-bd)} .sum.no{background:var(--no-bg);border-color:var(--no-bd)}
+.sum-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.sum.yes .sum-h{color:var(--yes-ink)} .sum.wait .sum-h{color:var(--wait-ink)} .sum.no .sum-h{color:var(--no-ink)}
+.sum-h .cnt{margin-inline-start:auto;font-size:22px}
+.sum p{font-size:14px}
+.sum.yes p{color:var(--yes-ink)} .sum.wait p{color:var(--wait-ink)} .sum.no p{color:var(--no-ink)}
+.sum-list{display:flex;flex-wrap:wrap;gap:6px}
+.sum-list span{background:#fff;border-radius:8px;padding:2px 10px;font-size:13.5px;font-weight:600}
+.sum-list em{font-style:normal;font-size:13.5px;opacity:.75}
+
+/* "when is it provided" block */
+.when{display:flex;flex-direction:column;gap:10px}
+.when-h{font-size:19px;font-weight:700;line-height:1.5}
+.when-h span{color:var(--accent)}
+.wr{display:flex;gap:14px;align-items:flex-start;border-radius:16px;padding:14px 16px;border:1.5px solid}
+.wr.yes{background:var(--yes-bg);border-color:var(--yes-bd)}
+.wr.wait{background:var(--wait-bg);border-color:var(--wait-bd)}
+.wr.no{background:var(--no-bg);border-color:var(--no-bd)}
+.wr-ic{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff}
+.wr.yes .wr-ic{background:var(--yes)} .wr.wait .wr-ic{background:var(--wait)} .wr.no .wr-ic{background:var(--no)}
+.wr-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.wr-t{font-size:18px;font-weight:700;line-height:1.4}
+.wr.yes .wr-t{color:var(--yes-ink)} .wr.wait .wr-t{color:var(--wait-ink)} .wr.no .wr-t{color:var(--no-ink)}
+.wr-d{font-size:14.5px;color:var(--ink)}
+.wr-d b{font-weight:700}
+.wr-chips{display:flex;flex-wrap:wrap;gap:6px}
+.wr-chips span{background:#fff;border-radius:8px;padding:3px 10px;font-size:14px;font-weight:700;border:1px solid rgba(0,0,0,.06)}
+.wr-chips span.def{border:1.5px dashed #9AA3AF;font-weight:600}
+.wr-chips em{font-style:normal;font-size:14px;color:var(--muted)}
+.wr-x{font-size:13.5px;color:var(--muted)}
+.when-f{font-size:13.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;background:#F6F7F9;border-radius:12px;padding:10px 12px}
+.key{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}
+.key .k{display:inline-flex;align-items:center;gap:6px}
+.key .k.yes{color:var(--yes-ink)} .key .k.wait{color:var(--wait-ink)} .key .k.no{color:var(--no-ink)}
+.key .k.yes svg{color:var(--yes)} .key .k.wait svg{color:var(--wait)} .key .k.no svg{color:var(--no)}
+.fb-inline{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.savebar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;width:min(760px,calc(100% - 24px));display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:10px 10px 10px 16px;box-shadow:0 18px 40px -14px rgba(23,32,43,.45),0 2px 6px rgba(23,32,43,.08)}
+.savebar.is-dirty{border-color:var(--wait-bd);box-shadow:0 18px 40px -14px rgba(180,83,9,.45),0 0 0 3px var(--wait-bg)}
+.sb-msg{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;flex:1 1 auto;min-width:0;line-height:1.5}
+.sb-msg small{display:block;font-size:12.5px;font-weight:500;color:var(--soft)}
+.sb-dot{width:12px;height:12px;border-radius:50%;flex:none;background:#9AA3AF}
+.sb-ok{color:var(--yes-ink)} .sb-ok .sb-dot{background:var(--yes)}
+.sb-dirty{color:var(--wait-ink)} .sb-dirty .sb-dot{background:var(--wait);box-shadow:0 0 0 4px var(--wait-bg)}
+.sb-err{color:var(--no-ink)} .sb-err .sb-dot{background:var(--no)}
+.sb-off,.sb-load{color:var(--muted)}
+.sb-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;min-width:150px;padding:0 26px;border-radius:14px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:17px;transition:background .15s,transform .1s}
+.sb-btn:hover:not(:disabled){background:#115E59}
+.sb-btn:active:not(:disabled){transform:scale(.97)}
+.sb-btn:disabled{background:#E5E8EC;color:#6B7280;cursor:default}
+body{padding-bottom:110px}
+@media (max-width:560px){ .savebar{bottom:10px;padding:10px;gap:10px} .sb-btn{min-width:110px;padding:0 16px;font-size:16px} .sb-msg{font-size:13.5px} .sb-msg small{display:none} body{padding-bottom:100px} }
+.svc.done{border-color:var(--yes-bd);background:#F5FCF7}
+.svc.done[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg)}
+.done-ic{flex:none;width:24px;height:24px;border-radius:50%;background:var(--yes);color:#fff;display:inline-flex;align-items:center;justify-content:center}
+.done-b{font-size:13px;font-weight:700;color:var(--yes)}
+.done-banner{display:flex;gap:10px;align-items:center;background:var(--yes-bg);border:1px solid var(--yes-bd);color:var(--yes-ink);border-radius:12px;padding:10px 14px;font-size:14.5px}
+.done-banner svg{color:var(--yes);flex:none}
+.rules-split{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
+.rules-out{position:sticky;top:12px;background:#fff;border:2px solid var(--ink);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.out-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;background:var(--ink);color:#fff;border-radius:999px;padding:3px 12px}
+@media (max-width:980px){ .rules-split{grid-template-columns:1fr} .rules-out{position:static} }
+
+.cases{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.case{display:grid;grid-template-columns:1.15fr .85fr 1.5fr 1.5fr;gap:14px;padding:14px 16px;border-top:1px solid var(--line);align-items:center;font-size:14.5px}
+.case:first-child{border-top:0}
+.case.head{background:#F6F7F9;font-weight:700;font-size:13.5px;color:var(--soft)}
+.case.c-yes{border-inline-start:5px solid var(--yes)} .case.c-wait{border-inline-start:5px solid var(--wait)} .case.c-no{border-inline-start:5px solid var(--no)} .case.c-na{border-inline-start:5px solid var(--na-bd);background:#FBFBFC;color:var(--muted)}
+.case.head{border-inline-start:5px solid transparent}
+.c-name{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:15.5px}
+.c-name .tag{align-self:flex-start}
+.case .q{font-weight:600}
+
+.assoc-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.ab{border-radius:16px;padding:16px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:#FCFCFD}
+.ab h4{font-size:16px;display:flex;gap:8px;align-items:center}
+.ab p{font-size:15px;color:var(--muted)}
+.ph-preview{border:1.5px dashed var(--na-bd);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:#fff}
+
+/* ===== TAB 2: rules ===== */
+.steps{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.step{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 16px;font-weight:600;font-size:15px}
+.step b{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.svc{text-align:right;display:flex;flex-direction:column;gap:8px;min-height:88px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);transition:border-color .15s,background .15s}
+.svc:hover:not(:disabled){border-color:#B8C2CE}
+.svc[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-bg)}
+.svc:disabled{cursor:not-allowed;border-style:dashed;background:repeating-linear-gradient(135deg,#FAFAFB 0 8px,#F3F4F6 8px 16px);color:var(--muted)}
+.svc .top,.svc .bot{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
+.svc .name{font-size:15.5px;font-weight:700;line-height:1.4}
+.svc .count{font-size:13px;color:var(--muted)}
+.q-title{font-size:23px;line-height:1.6}
+.q-title span{color:var(--accent)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.legend div{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:14px}
+.lg-yes{background:var(--yes-bg);color:var(--yes-ink)} .lg-wait{background:var(--wait-bg);color:var(--wait-ink)} .lg-no{background:var(--no-bg);color:var(--no-ink)}
+.lg-yes .ico{color:var(--yes)} .lg-wait .ico{color:var(--wait)} .lg-no .ico{color:var(--no)}
+.fallback{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:14.5px;background:#F6F7F9;border-radius:12px;padding:10px 14px}
+.fallback select,.sel{min-height:40px;border:1.5px solid var(--line2);border-radius:10px;padding:0 10px;background:#fff;font-weight:600}
+.progress{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;font-size:14px;padding:10px 0;border-top:1px solid #EEF1F4;border-bottom:1px solid #EEF1F4}
+.bar{flex:1 1 160px;height:8px;border-radius:99px;background:#EEF1F4;overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+.row[data-v="yes"]{background:#F5FCF7;border-color:var(--yes-bd)} .row[data-v="wait"]{background:#FFFBF2;border-color:var(--wait-bd)} .row[data-v="no"]{background:#FFF7F7;border-color:var(--no-bd)}
+.row .info{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.row .title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:17px;font-weight:700}
+.status{font-size:14px;color:var(--soft)}
+.row[data-v="yes"] .status{color:var(--yes)} .row[data-v="wait"] .status{color:var(--wait)} .row[data-v="no"] .status{color:var(--no)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;border:1.5px solid var(--line2);background:#fff;font-size:15px;font-weight:700}
+.opt:hover{border-color:#9AA3AF}
+.opt.yes[aria-pressed="true"]{background:var(--yes);border-color:var(--yes);color:#fff}
+.opt.wait[aria-pressed="true"]{background:var(--wait);border-color:var(--wait);color:#fff}
+.opt.no[aria-pressed="true"]{background:var(--no);border-color:var(--no);color:#fff}
+.note{font-size:14px;color:var(--muted)}
+.mx-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table.mx{border-collapse:separate;border-spacing:4px;margin:0 auto;padding:8px}
+.mx th{font-size:13px;font-weight:700}
+.mx thead th{width:76px;min-width:76px;max-width:76px;vertical-align:bottom;text-align:center;padding:8px 4px;line-height:1.4;border-radius:8px}
+.mx thead th span{display:block;white-space:normal;word-break:keep-all}
+.mx thead th:first-child{position:sticky;right:0;background:#fff;z-index:2;width:auto;min-width:0;max-width:none}
+.mx tbody th{text-align:right;white-space:nowrap;padding:0 6px 0 14px;position:sticky;right:0;background:#fff;z-index:1}
+.mx tbody th.cur{background:var(--accent-bg)}
+.mx th.s{color:var(--s-ink)} .mx th.d{color:var(--d-ink)} .mx th.a{color:var(--soft)}
+.mx th.cur{background:var(--accent-bg);border-radius:8px;color:var(--accent)}
+.mx td{width:76px;height:42px;border-radius:8px;border:1px dashed var(--line2);text-align:center;vertical-align:middle;color:#9AA3AF;font-size:13px}
+.mx td.self{border:none;background:repeating-linear-gradient(45deg,#EEF1F4 0 4px,transparent 4px 8px)}
+.mx td.na{border:none;background:repeating-linear-gradient(-45deg,#F3F4F6 0 3px,#FAFAFB 3px 6px)}
+.mx td.yes{background:var(--yes-bg);border:1px solid var(--yes-bd);color:var(--yes)}
+.mx td.wait{background:var(--wait-bg);border:1px solid var(--wait-bd);color:var(--wait)}
+.mx td.no{background:var(--no-bg);border:1px solid var(--no-bd);color:var(--no)}
+.mx td.hl{box-shadow:0 0 0 2px var(--accent) inset}
+.mx td svg{display:block;margin:auto}
+.mx-legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted)}
+.mx-legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:18px;border-radius:5px;display:inline-block}
+.readonly{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--soft);background:#F1F3F6;border-radius:999px;padding:3px 12px}
+
+/* ===== TAB 3: try ===== */
+.try-grid{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:22px;align-items:start}
+.phone-col{position:sticky;top:12px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.phone{width:100%;max-width:390px;border:10px solid #17202B;border-radius:38px;background:#F6F7F9;overflow:hidden;box-shadow:0 18px 40px -20px rgba(23,32,43,.45)}
+.ph-bar{background:var(--accent);color:#fff;padding:16px 18px 14px;display:flex;align-items:center;justify-content:space-between}
+.ph-bar strong{font-size:16px}
+.ph-bar small{font-size:12px;background:rgba(255,255,255,.18);padding:2px 10px;border-radius:999px}
+.ph-body{padding:14px;display:flex;flex-direction:column;gap:12px;min-height:600px;max-height:720px;overflow-y:auto}
+.ph-h{font-size:14px;font-weight:700;color:var(--muted);margin-top:4px}
+.ph-sub{font-size:12.5px;color:var(--soft);margin-top:-8px}
+.pi{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:8px 8px 8px 10px;transition:border-color .15s}
+.pi.focused{border-color:var(--ink);box-shadow:0 0 0 3px rgba(23,32,43,.08)}
+.pi-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:transparent;text-align:right;padding:2px;min-height:44px}
+.pi-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.pi-tx{display:flex;flex-direction:column;min-width:0}
+.pi-tx strong{font-size:14.5px;line-height:1.4}
+.pi-tx span{font-size:12.5px;line-height:1.5}
+.pi.k-ok .pi-tx span{color:var(--yes)} .pi.k-wait .pi-tx span{color:var(--wait)} .pi.k-blocked .pi-tx span{color:var(--no)}
+.pi.k-have .pi-tx span{color:var(--accent)} .pi.k-queued .pi-tx span{color:var(--wait)}
+.pi.k-assoc,.pi.k-paused{background:#FBFBFC;border-style:dashed} .pi.k-assoc .pi-tx span,.pi.k-paused .pi-tx span{color:var(--soft)}
+.pi.k-blocked{background:#FFFBFB}
+.pi-btn{min-height:40px;padding:0 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:13.5px;white-space:nowrap}
+.pi-btn.w{background:var(--wait)}
+.pi-lock{color:var(--soft);padding:0 6px}
+.ph-note{display:flex;gap:10px;align-items:flex-start;background:var(--yes-bg);border:1px solid var(--yes-bd);color:var(--yes-ink);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.ph-note button{margin-inline-start:auto;border:0;background:transparent;color:var(--yes-ink);font-weight:700;min-height:28px}
+.ph-empty{font-size:13px;color:var(--soft);background:#fff;border:1px dashed var(--line2);border-radius:12px;padding:10px 12px}
+.ph-back{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--accent);font-weight:700;min-height:40px;padding:0}
+.ap-head{display:flex;gap:12px;align-items:center}
+.ap-head h4{font-size:19px}
+.ap-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ap-box h5{font-size:14px}
+.doc{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px}
+.doc button{min-height:36px;border-radius:9px;border:1.5px solid var(--line2);background:#fff;font-weight:700;font-size:12.5px;padding:0 12px;white-space:nowrap}
+.doc button[aria-pressed="true"]{background:var(--yes-bg);border-color:var(--yes-bd);color:var(--yes)}
+.ap-warn{display:flex;gap:10px;background:var(--wait-bg);border:1px solid var(--wait-bd);color:var(--wait-ink);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.ph-primary{min-height:50px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:15.5px}
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px 6px 6px}
+.done .big{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.done h4{font-size:19px}
+.done p{font-size:14px;color:var(--muted)}
+.track{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:right}
+.track li{display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;color:var(--soft)}
+.track li i{width:22px;height:22px;border-radius:50%;border:2px solid var(--line2);flex:none;display:flex;align-items:center;justify-content:center;font-style:normal}
+.track li.done-s{color:var(--ink)} .track li.done-s i{background:var(--accent);border-color:var(--accent);color:#fff}
+.track li.cur{color:var(--ink);font-weight:700} .track li.cur i{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-bg)}
+.track li.cur.w i{border-color:var(--wait);box-shadow:0 0 0 4px var(--wait-bg)}
+.ph-tip{max-width:390px;font-size:13.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;gap:8px}
+
+.admin-col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ck{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.ck .cki{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff}
+.ck.pass .cki{background:var(--yes)} .ck.stop .cki{background:var(--no)} .ck.info .cki{background:var(--ink)}
+.ck.stop{background:#FFF7F7;border-color:var(--no-bd)}
+.ck .ckb{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ck .ckq{font-weight:700;font-size:15px}
+.ck .cka{font-size:14px;color:var(--muted)}
+.subs{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.sub{display:grid;grid-template-columns:minmax(0,1.3fr) auto minmax(0,1.4fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:#F8F9FA;font-size:13.5px}
+.sub.hit-no{background:var(--no-bg)} .sub.hit-wait{background:var(--wait-bg)} .sub.hit-yes{background:var(--yes-bg)}
+.sub .sn{font-weight:700}
+.st{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.st.active{background:var(--ink);color:#fff} .st.none{background:#E8EBF0;color:var(--muted)} .st.closed{background:#fff;color:var(--muted);border:1px solid var(--line2)}
+.sub .se{color:var(--muted)}
+.sub.hit-no .se{color:var(--no-ink);font-weight:600} .sub.hit-wait .se{color:var(--wait-ink);font-weight:600} .sub.hit-yes .se{color:var(--yes-ink);font-weight:600}
+.sub select{min-height:36px;border:1.5px solid var(--line2);border-radius:9px;background:#fff;font-weight:600;font-size:13px;padding:0 6px}
+.verdict{border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px;border:1.5px solid}
+.verdict strong{font-size:17px;display:flex;gap:8px;align-items:center}
+.verdict p{font-size:14.5px}
+.v-ok{background:var(--yes-bg);border-color:var(--yes-bd);color:var(--yes-ink)}
+.v-wait,.v-queued{background:var(--wait-bg);border-color:var(--wait-bd);color:var(--wait-ink)}
+.v-blocked{background:var(--no-bg);border-color:var(--no-bd);color:var(--no-ink)}
+.v-have{background:var(--accent-bg);border-color:#BFE3DD;color:#0F5F58}
+.v-assoc,.v-paused{background:var(--na-bg);border-color:var(--na-bd);color:var(--ink)}
+.bs{display:flex;flex-direction:column;gap:6px}
+.bs-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #EEF1F4}
+.bs-row:first-child{border-top:0}
+.bs-name{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}
+.seg{display:inline-flex;background:#F1F3F6;border-radius:11px;padding:3px;gap:2px}
+.seg button{min-height:38px;padding:0 12px;border:0;border-radius:9px;background:transparent;font-size:13px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg button.a[aria-pressed="true"]{background:var(--ink);color:#fff}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.presets .btn{min-height:40px;font-size:13.5px}
+.sw-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #EEF1F4;font-size:14.5px;font-weight:600}
+.sw-row:first-child{border-top:0}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:0;background:#C7CDD6;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:right .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{right:25px}
+.sw-state{font-size:12.5px;color:var(--soft);font-weight:600;margin-inline-start:auto;margin-inline-end:10px}
+.queue-box{background:var(--wait-bg);border:1px solid var(--wait-bd);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--wait-ink);display:flex;flex-direction:column;gap:6px}
+.queue-box div{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.queue-box button{border:0;background:transparent;color:var(--wait-ink);font-weight:700;text-decoration:underline;min-height:32px}
+
+@media (max-width:900px){
+  .try-grid{grid-template-columns:1fr}
+  .phone-col{position:static}
+}
+@media (max-width:720px){
+  .top h1{font-size:23px}
+  .d-title h2{font-size:23px}
+  .q-title{font-size:19px}
+  .panel,.d-head,.d-body{padding:16px}
+  .case{grid-template-columns:1fr;gap:6px}
+  .case.head{display:none}
+  .case [data-l]::before{content:attr(data-l);display:block;font-size:12px;font-weight:600;color:var(--soft)}
+  .opt{flex:1 1 0;justify-content:center;padding:0 8px}
+  .opts{width:100%}
+  .sub{grid-template-columns:1fr auto}
+  .sub .se{grid-column:1/-1}
+  .sub select{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>قواعد الجمع بين الخدمات</h1>
+      <p>متى تُقدَّم كل خدمة للمستفيد، ومتى لا تُقدَّم.</p>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="أقسام الصفحة">
+      <button class="tab" role="tab" data-act="tab" data-tab="rules" data-fk="tab-rules"><span class="tn">1</span>ضبط قواعد الجمع</button>
+      <button class="tab" role="tab" data-act="tab" data-tab="try" data-fk="tab-try"><span class="tn">2</span>تجربة الطلب كمستفيد</button>
+    </nav>
+  </header>
+
+  <main id="tab-rules" role="tabpanel"></main>
+  <main id="tab-try" role="tabpanel" hidden></main>
+</div>
+
+<div class="savebar" id="savebar" role="region" aria-label="حفظ القواعد"></div>
+<script>
+(function(){
+'use strict';
+
+/* ================= DATA (عدّل محتوى الخدمات من هنا) ================= */
+var P = { // icon paths
+  emg:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  rent:'<path d="M3 11l9-7 9 7"/><path d="M5 9.5V20h14V9.5"/><circle cx="12" cy="13.5" r="2"/><path d="M12 15.5V18"/>',
+  elec:'<path d="M13 2L5 13h6l-1 9 8-12h-6z"/>',
+  water:'<path d="M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11z"/>',
+  food:'<path d="M3 10h18l-2 10H5z"/><path d="M8 10l4-6 4 6"/>',
+  orphan:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+  furn:'<path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><path d="M3 11h18v6H3z"/><path d="M5 17v2M19 17v2"/>',
+  season:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+  jobs:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 13h18"/>',
+  edu:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+  house:'<path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6"/>',
+  proj:'<path d="M12 21v-8"/><path d="M12 13c0-4 3-7 7-7 0 4-3 7-7 7z"/><path d="M12 15c0-3-2-5-5-5 0 3 2 5 5 5z"/>'
+};
+var SERVICES = [
+ {id:'emg', name:'الدعم الطارئ', g:'s', assoc:true,
+  brief:'مساعدة عاجلة للأسرة التي تمر بظرف مفاجئ، مثل حريق أو حادث أو وفاة العائل.',
+  who:'أسر تحددها الجمعية بعد رصد الظرف الطارئ.',
+  gets:'مساعدة مالية أو عينية عاجلة حسب الحالة.',
+  docs:['لا يرفع المستفيد شيئاً — الباحث الاجتماعي يوثّق الحالة'],
+  exec:'صرف المساعدة العاجلة للأسرة'},
+ {id:'rent', name:'سداد الإيجارات', g:'s',
+  brief:'مساعدة الأسرة في سداد إيجار مسكنها المستحق أو المتأخر.',
+  who:'الأسر المستأجرة غير القادرة على سداد الإيجار.',
+  gets:'سداد مبلغ الإيجار للمؤجر مباشرة.',
+  docs:['صورة الهوية الوطنية','عقد الإيجار الموثّق','إثبات الدخل الشهري'],
+  exec:'تحويل مبلغ الإيجار للمؤجر مباشرة'},
+ {id:'elec', name:'فاتورة تسديد الكهرباء', g:'s',
+  brief:'سداد فاتورة الكهرباء المتأخرة عن الأسرة.',
+  who:'الأسر المتعثرة في سداد فاتورة الكهرباء.',
+  gets:'سداد الفاتورة لدى شركة الكهرباء.',
+  docs:['صورة الهوية الوطنية','آخر فاتورة كهرباء'],
+  exec:'سداد فاتورة الكهرباء لدى الشركة'},
+ {id:'water', name:'فاتورة تسديد المياه', g:'s',
+  brief:'سداد فاتورة المياه المتأخرة عن الأسرة.',
+  who:'الأسر المتعثرة في سداد فاتورة المياه.',
+  gets:'سداد الفاتورة لدى شركة المياه.',
+  docs:['صورة الهوية الوطنية','آخر فاتورة مياه'],
+  exec:'سداد فاتورة المياه لدى الشركة'},
+ {id:'food', name:'السلة الغذائية', g:'s', assoc:true,
+  brief:'سلة مواد غذائية أساسية توزّعها الجمعية دورياً على الأسر.',
+  who:'أسر تحددها الجمعية من المسجلين لديها.',
+  gets:'مواد غذائية أساسية.',
+  docs:['لا يرفع المستفيد شيئاً — الجمعية تحدد المستحقين من سجلاتها'],
+  exec:'توزيع السلال الغذائية على الأسر'},
+ {id:'orphan', name:'كفالة اليتيم', g:'s',
+  brief:'دعم شهري منتظم للأطفال الأيتام لتغطية احتياجاتهم.',
+  who:'الأطفال الأيتام وأسرهم.',
+  gets:'مبلغ شهري للكفالة.',
+  docs:['سجل الأسرة','شهادة وفاة الأب','صك الولاية أو الحضانة'],
+  exec:'بدء صرف الكفالة الشهرية'},
+ {id:'furn', name:'الأجهزة والأثاث', g:'s',
+  brief:'توفير الأجهزة المنزلية الأساسية والأثاث للأسر المحتاجة.',
+  who:'الأسر التي ينقصها جهاز أو أثاث ضروري.',
+  gets:'أجهزة أساسية (ثلاجة، غسالة، مكيف…) أو أثاث.',
+  docs:['صورة الهوية الوطنية','صور للأجهزة التالفة (اختياري)'],
+  exec:'شراء الأجهزة وتسليمها للمنزل'},
+ {id:'season', name:'البرامج الموسمية', g:'s',
+  brief:'برامج في مواسم محددة مثل رمضان والعيد والعودة للمدارس.',
+  who:'الأسر المسجلة، حسب شروط كل موسم.',
+  gets:'سلة رمضان أو كسوة العيد أو الحقيبة المدرسية… حسب الموسم.',
+  docs:['صورة الهوية الوطنية','سجل الأسرة'],
+  exec:'تسليم مستلزمات الموسم'},
+ {id:'jobs', name:'التأهيل والتوظيف', g:'d',
+  brief:'تدريب أفراد الأسرة وتأهيلهم ومساعدتهم في الحصول على عمل.',
+  who:'أفراد الأسرة القادرون على العمل.',
+  gets:'دورات تدريبية وترشيح لفرص وظيفية.',
+  docs:['صورة الهوية الوطنية','السيرة الذاتية','الشهادات الدراسية'],
+  exec:'تسجيل المستفيد في التدريب أو ترشيحه للوظيفة'},
+ {id:'edu', name:'الدعم التعليمي', g:'d',
+  brief:'دعم تعليم أبناء الأسرة لإكمال دراستهم.',
+  who:'الطلاب والطالبات من أبناء الأسر المسجلة.',
+  gets:'رسوم دراسية أو دروس تقوية أو مستلزمات تعليمية.',
+  docs:['سجل الأسرة','إفادة من المدرسة أو الجامعة'],
+  exec:'سداد الرسوم أو التسجيل في البرنامج'},
+ {id:'house', name:'السكن التنموي', g:'d',
+  brief:'مساعدة الأسرة في الحصول على سكن دائم ومناسب.',
+  who:'الأسر التي لا تملك سكناً مناسباً.',
+  gets:'دعم لتملّك سكن أو ترميمه أو تأمينه بشكل دائم.',
+  docs:['صورة الهوية الوطنية','سجل الأسرة','إثبات الدخل','ما يثبت وضع السكن الحالي'],
+  exec:'تنفيذ دعم السكن حسب نوعه'},
+ {id:'proj', name:'المشاريع التنموية', g:'d',
+  brief:'دعم الأسرة لبدء مشروع صغير يدرّ عليها دخلاً ثابتاً.',
+  who:'الأسر التي لديها فكرة مشروع وقدرة على إدارته.',
+  gets:'تمويل أو تجهيز مشروع صغير مع متابعة.',
+  docs:['صورة الهوية الوطنية','فكرة المشروع مكتوبة','دراسة جدوى مبسطة (إن وجدت)'],
+  exec:'تمويل المشروع وبدء المتابعة'}
+];
+var GROUP = {s:'دعم مباشر', d:'تمكين'};
+var ROLES = {ben:['المستفيد','r-ben'], sys:['النظام — تلقائي','r-sys'], res:['الباحث الاجتماعي','r-res'], com:['اللجنة / المدير','r-com'], exe:['التنفيذ والمالية','r-exe']};
+var LABEL = {yes:'نعم', wait:'بعد الانتهاء', no:'لا'};
+var MXT = {yes:'مسموح معاً', wait:'بعد إغلاق الأخرى', no:'ممنوع معاً'};
+var STATES = {none:'لا يوجد', active:'لديه الآن', closed:'انتهت'};
+
+function svgI(d,s,w){ return '<svg width="'+(s||20)+'" height="'+(s||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(w||2)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>'; }
+var I = {
+  yes:function(s){return svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>',s,2.6);},
+  wait:function(s){return svgI('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',s,2.2);},
+  no:function(s){return svgI('<path d="M6 6l12 12M18 6L6 18"/>',s,2.6);},
+  lock:function(s){return svgI('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',s);},
+  info:function(s){return svgI('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',s);},
+  back:function(s){return svgI('<path d="M9 6l6 6-6 6"/>',s);},
+  eye:function(s){return svgI('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',s);},
+  edit:function(s){return svgI('<path d="M4 20h4L19 9l-4-4L4 16z"/>',s);},
+  play:function(s){return svgI('<path d="M7 5l12 7-12 7z"/>',s);},
+  user:function(s){return svgI('<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',s);},
+  doc:function(s){return svgI('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',s);},
+  gift:function(s){return svgI('<rect x="3" y="8" width="18" height="4"/><path d="M5 12v9h14v-9M12 8v13M12 8S10 3 7.5 4.5 9 8 12 8zM12 8s2-5 4.5-3.5S15 8 12 8z"/>',s);},
+  bell:function(s){return svgI('<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',s);},
+  reset:function(s){return svgI('<path d="M4 4v6h6"/><path d="M5 15a8 8 0 1 0 2-8.5L4 10"/>',s);}
+};
+function sIcon(s,size){ return svgI(P[s.id], size||20); }
+
+/* ================= STATE ================= */
+var STORE = 'svc-hub-v5';
+function defaults(){ return {
+  rules:{},
+  fallback:'yes', paused:{}, ben:{}, queue:[], notes:[],
+  tab:'rules', card:'rent', sel:'rent', focus:'house', screen:'home', attached:{}, last:null
+};}
+var S = defaults();
+try { var raw = localStorage.getItem(STORE); if (raw) { var o = JSON.parse(raw); if (o) { delete o.rules; delete o.fallback; delete o.paused; S = Object.assign(defaults(), o); } if (S.tab!=='try') S.tab='rules'; } } catch(e){}
+function save(){ try { var o = Object.assign({}, S); delete o.rules; delete o.fallback; delete o.paused; localStorage.setItem(STORE, JSON.stringify(o)); } catch(e){} }
+function progressOf(id){
+  var others = SERVICES.filter(function(x){ return !x.assoc && x.id!==id; });
+  var d = others.filter(function(x){ return !!S.rules[[id,x.id].sort().join('|')]; }).length;
+  return {done:d, total:others.length};
+}
+function completeCount(){ return SERVICES.filter(function(s){ if (s.assoc) return false; var p = progressOf(s.id); return p.done===p.total; }).length; }
+
+/* ===== shared saving (Claude artifact store, or Firebase when opened elsewhere) ===== */
+var FIREBASE = {
+  apiKey: "AIzaSyAbgD8O7AzjaqljUsOQFpk3h8dPUGm5VqE",
+  authDomain: "general-7a236.firebaseapp.com",
+  projectId: "general-7a236",
+  storageBucket: "general-7a236.firebasestorage.app",
+  messagingSenderId: "95265122306",
+  appId: "1:95265122306:web:b8e5976d300c9569c99f1b"
+};
+var store = { kind:null, status:'loading', saved:null, at:null, busy:false, err:'', write:null };
+function sharedJSON(){ return JSON.stringify({rules:S.rules, fallback:S.fallback, paused:S.paused}); }
+function isDirty(){ return store.saved !== sharedJSON(); }
+function diffCount(){
+  var a = {}; try { a = JSON.parse(store.saved||'{}'); } catch(e){}
+  var ar = a.rules||{}, n = 0, keys = {};
+  Object.keys(ar).concat(Object.keys(S.rules)).forEach(function(k){ keys[k]=1; });
+  Object.keys(keys).forEach(function(k){ if (ar[k]!==S.rules[k]) n++; });
+  if (a.fallback!==S.fallback) n++;
+  if (JSON.stringify(a.paused||{})!==JSON.stringify(S.paused)) n++;
+  return n;
+}
+function applyRemote(d){
+  if (d && d.rules && typeof d.rules === 'object'){
+    var ok = {}; Object.keys(d.rules).forEach(function(k){
+      var ids = k.split('|'), v = d.rules[k];
+      if (ids.length===2 && svc(ids[0]) && svc(ids[1]) && (v==='yes'||v==='wait'||v==='no')) ok[key(ids[0],ids[1])] = v;
+    });
+    S.rules = ok;
+    if (d.fallback==='yes'||d.fallback==='wait'||d.fallback==='no') S.fallback = d.fallback;
+    S.paused = (d.paused && typeof d.paused==='object') ? d.paused : {};
+    store.at = d.savedAt || null;
+    store.saved = sharedJSON();
+  } else {
+    // nothing saved yet: start completely empty
+    S.rules = {}; S.paused = {}; S.fallback = 'yes';
+    store.at = null;
+    store.saved = sharedJSON();
+  }
+  store.status = 'ready';
+  processQueue(); render();
+}
+var FB_URL = 'https://firestore.googleapis.com/v1/projects/'+FIREBASE.projectId+'/databases/(default)/documents/svcRules/main?key='+FIREBASE.apiKey;
+function fbFetch(opts){
+  var ctrl = ('AbortController' in window) ? new AbortController() : null;
+  var t = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 9000);
+  if (ctrl) opts.signal = ctrl.signal;
+  return fetch(FB_URL, opts).then(function(r){ clearTimeout(t); return r; }, function(e){ clearTimeout(t); throw e; });
+}
+function fbGet(){
+  return fbFetch({method:'GET'}).then(function(r){
+    if (r.status===404) return null;
+    if (!r.ok) throw {code: r.status===403 ? 'permission-denied' : 'unavailable'};
+    return r.json().then(function(doc){
+      var f = doc && doc.fields && doc.fields.json;
+      return f && f.stringValue ? JSON.parse(f.stringValue) : null;
+    });
+  });
+}
+function fbSet(data){
+  return fbFetch({method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fields:{json:{stringValue: JSON.stringify(data)}}})})
+    .then(function(r){ if (!r.ok) throw {code: r.status===403 ? 'permission-denied' : 'unavailable'}; });
+}
+function initStore(){
+  function offline(){ store.kind = null; store.write = null; store.status = 'offline'; store.saved = sharedJSON(); render(); }
+  function tryClaude(){
+    if (!(window.claude && typeof window.claude.use === 'function')) return offline();
+    window.claude.use('db').then(function(db){
+      if (!db) return offline();
+      var ref = db.doc('config/main');
+      store.kind = 'db';
+      store.write = function(data){ return ref.set(data); };
+      return ref.get().then(function(snap){ applyRemote(snap.exists ? snap.data() : null); });
+    }).catch(offline);
+  }
+  fbGet().then(function(d){
+    store.kind = 'firebase'; store.write = fbSet; applyRemote(d);
+  }).catch(tryClaude);
+}
+function doSave(){
+  if (store.busy || !isDirty()) return;
+  if (!store.write){ store.status = 'error'; store.err = 'تعذّر الحفظ: لا يوجد اتصال بقاعدة البيانات.'; render(); return; }
+  store.busy = true; store.err = ''; render();
+  var at = new Date().toISOString();
+  var data = {v:1, rules:S.rules, fallback:S.fallback, paused:S.paused, savedAt:at};
+  var snapshot = sharedJSON();
+  store.write(data).then(function(){
+    store.saved = snapshot; store.at = at; store.status = 'ready';
+  }).catch(function(e){
+    store.status = 'error';
+    store.err = (e && (e.code==='invalid_argument' || e.code==='permission-denied')) ? 'تعذّر الحفظ: لا توجد صلاحية للكتابة.' : 'تعذّر الحفظ، تحقق من الاتصال وحاول مرة أخرى.';
+  }).then(function(){ store.busy = false; render(); });
+}
+function fmtTime(iso){
+  try { return new Date(iso).toLocaleString('ar-SA',{dateStyle:'medium', timeStyle:'short'}); } catch(e){ return ''; }
+}
+function saveBar(){
+  var dirty = isDirty(), cls, txt, sub = '';
+  if (store.status==='loading'){ cls='load'; txt='جاري تحميل القواعد المحفوظة…'; }
+  else if (store.status==='offline' && !dirty){ cls='off'; txt='تعذّر الاتصال بقاعدة البيانات'; sub='لن تُحفظ التغييرات حتى يعود الاتصال. أعد فتح الصفحة.'; }
+  else if (store.busy){ cls='load'; txt='جاري الحفظ…'; }
+  else if (store.status==='error' && dirty){ cls='err'; txt=store.err; sub='تغييراتك ما زالت هنا، حاول الحفظ مرة أخرى.'; }
+  else if (dirty){ var n = diffCount(); cls='dirty'; txt = n===1 ? 'تغيير واحد غير محفوظ' : n===2 ? 'تغييران غير محفوظين' : (n+' تغييرات غير محفوظة'); sub='يمكنك الحفظ الآن حتى لو لم تكمل، وتكمل لاحقاً.'; }
+  else { cls='ok'; txt = store.at ? 'كل التغييرات محفوظة' : 'لا توجد قواعد محفوظة بعد'; sub = store.at ? 'آخر حفظ: '+fmtTime(store.at) : 'ابدأ بالاختيار، ثم اضغط «حفظ».'; }
+  var dis = store.busy || !dirty || store.status==='loading';
+  var bar = $('savebar'); if (bar) bar.className = 'savebar'+(dirty && !dis ? ' is-dirty' : '');
+  var btnTxt = store.busy ? 'جاري الحفظ…' : (!dirty && store.at ? I.yes(18)+'محفوظ' : 'حفظ');
+  return '<div class="sb-msg sb-'+cls+'" role="status" aria-live="polite"><span class="sb-dot" aria-hidden="true"></span><span>'+esc(txt)+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></div>'+
+    '<button type="button" class="sb-btn" data-act="save" data-fk="save"'+(dis?' disabled':'')+'>'+btnTxt+'</button>';
+}
+
+
+/* ================= HELPERS ================= */
+function $(id){ return document.getElementById(id); }
+function esc(t){ return String(t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function svc(id){ for (var i=0;i<SERVICES.length;i++) if (SERVICES[i].id===id) return SERVICES[i]; return null; }
+function nm(id){ return svc(id).name; }
+function q(id){ return '«'+nm(id)+'»'; }
+function key(a,b){ return [a,b].sort().join('|'); }
+function ruleOf(a,b){ var v = S.rules[key(a,b)]; return v ? {v:v, explicit:true} : {v:S.fallback, explicit:false}; }
+function benSvcs(){ return SERVICES.filter(function(s){return !s.assoc;}); }
+function assocSvcs(){ return SERVICES.filter(function(s){return s.assoc;}); }
+function tag(s){ return '<span class="tag '+s.g+'">'+GROUP[s.g]+'</span>'; }
+function chan(s){ return s.assoc ? '<span class="chan assoc">'+I.lock(13)+'لا تحتاج تقديم من المستفيد</span>' : '<span class="chan ben">'+I.user(13)+'يطلبها المستفيد</span>'; }
+function gcls(s){ return s.assoc ? 'g-a' : 'g-'+s.g; }
+function badge(v, explicit){ return '<span class="badge '+v+'">'+I[v](15)+LABEL[v]+(explicit===false?' <small>(افتراضي)</small>':'')+'</span>'; }
+function listNames(ids){
+  var names = ids.map(q);
+  if (names.length<=1) return names.join('');
+  return names.slice(0,-1).join('، ')+' و'+names[names.length-1];
+}
+function inQueue(id){ return S.queue.some(function(x){return x.id===id;}); }
+function conflicts(a){
+  var r = {blockers:[], waits:[]};
+  benSvcs().forEach(function(x){
+    if (x.id===a || S.ben[x.id]!=='active') return;
+    var v = ruleOf(a,x.id).v;
+    if (v==='no') r.blockers.push(x.id); else if (v==='wait') r.waits.push(x.id);
+  });
+  return r;
+}
+function evaluate(a){
+  var s = svc(a), c = conflicts(a);
+  var r = {id:a, blockers:c.blockers, waits:c.waits};
+  if (s.assoc) r.kind = 'assoc';
+  else if (S.ben[a]==='active') r.kind = 'have';
+  else if (inQueue(a)) r.kind = 'queued';
+  else if (S.paused[a]) r.kind = 'paused';
+  else r.kind = c.blockers.length ? 'blocked' : (c.waits.length ? 'wait' : 'ok');
+  return r;
+}
+function processQueue(){
+  var keep = [];
+  S.queue.forEach(function(item){
+    if (S.ben[item.id]==='active') return;
+    var c = conflicts(item.id);
+    if (!c.blockers.length && !c.waits.length){
+      S.ben[item.id] = 'active';
+      if (S.screen==='done' && S.last && S.last.id===item.id) S.screen = 'home';
+      S.notes.push('بدأ طلبك '+q(item.id)+' تلقائياً وتحوّل للمراجعة، لأن الخدمة التي كان ينتظرها انتهت.');
+    } else keep.push(item);
+  });
+  S.queue = keep;
+}
+function counts(a){
+  var c = {yes:[],wait:[],no:[]};
+  benSvcs().forEach(function(x){ if (x.id!==a) c[ruleOf(a,x.id).v].push(x.id); });
+  return c;
+}
+
+/* the clear "when is it provided / not" block — used in cards and rules */
+function whenBlock(a, withTitle){
+  var c = counts(a);
+  function chips(ids){
+    if (!ids.length) return '<em>لا توجد خدمة هنا</em>';
+    return ids.map(function(id){ var ex = ruleOf(a,id).explicit; return '<span'+(ex?'':' class="def" title="قاعدة افتراضية"')+'>'+esc(nm(id))+'</span>'; }).join('');
+  }
+  return '<div class="when">'+
+    (withTitle ? '<div class="when-h">متى تُقدَّم <span>'+q(a)+'</span>؟</div>' : '')+
+    '<div class="wr yes"><div class="wr-ic">'+I.yes(24)+'</div><div class="wr-b">'+
+      '<div class="wr-t">تُقدَّم مباشرة</div>'+
+      '<div class="wr-d">إذا لم تكن لديه خدمة، أو لديه:</div>'+
+      '<div class="wr-chips">'+chips(c.yes)+'</div>'+
+      '</div></div>'+
+    '<div class="wr wait"><div class="wr-ic">'+I.wait(24)+'</div><div class="wr-b">'+
+      '<div class="wr-t">تُقدَّم بعد الانتهاء</div>'+
+      '<div class="wr-d">إذا لديه:</div>'+
+      '<div class="wr-chips">'+chips(c.wait)+'</div>'+
+      '<div class="wr-x">يقدّم الآن، ويبدأ طلبه تلقائياً عند انتهائها.</div></div></div>'+
+    '<div class="wr no"><div class="wr-ic">'+I.no(24)+'</div><div class="wr-b">'+
+      '<div class="wr-t">لا تُقدَّم</div>'+
+      '<div class="wr-d">إذا لديه:</div>'+
+      '<div class="wr-chips">'+chips(c.no)+'</div>'+
+      '<div class="wr-x">لا يستطيع التقديم حتى تنتهي.</div></div></div>'+
+    '<p class="when-f"><span class="ico">'+I.info(16)+'</span><span><b>لا تؤثر:</b> الخدمات المنتهية، والسلة الغذائية والدعم الطارئ. الإطار المتقطع = غير محدد.</span></p>'+
+  '</div>';
+}
+
+/* text for "what happens" */
+function benSees(a,x,v){
+  if (v==='yes') return 'يرى زر «قدّم الآن» ويقدّم عادي.';
+  if (v==='wait') return 'يستطيع التقديم، ويرى: «سيبدأ طلبك بعد انتهاء '+q(x)+'».';
+  return 'لا يظهر له زر التقديم، ويرى: «غير متاحة مع '+q(x)+'».';
+}
+function sysDoes(a,x,v){
+  if (v==='yes') return 'يُقبل الطلب ويُحوَّل للباحث الاجتماعي مباشرة. الخدمتان تعملان معاً.';
+  if (v==='wait') return 'يُحفظ الطلب في قائمة الانتظار ولا يصل للموظف. عند إغلاق '+q(x)+' يتحول تلقائياً للمراجعة.';
+  return 'يُمنع الطلب، فلا يصل شيء للموظف. يستطيع التقديم فقط بعد انتهاء '+q(x)+'.';
+}
+
+/* ================= TAB 2: RULES ================= */
+function viewRules(){
+  if (svc(S.sel).assoc) S.sel = benSvcs()[0].id;
+  var s0 = svc(S.sel);
+  var cards = SERVICES.map(function(s){
+    if (s.assoc) return '<button type="button" class="svc" disabled aria-disabled="true">'+
+      '<span class="top"><span class="name">'+esc(s.name)+'</span><span class="ico" style="color:var(--soft)">'+I.lock(18)+'</span></span>'+
+      '<span class="bot"><span class="chan assoc">لا تحتاج تقديم من المستفيد</span></span></button>';
+    var pr = progressOf(s.id), full = pr.done===pr.total;
+    return '<button type="button" class="svc'+(full?' done':'')+'" data-act="rsel" data-id="'+s.id+'" data-fk="rsel-'+s.id+'" aria-pressed="'+(s.id===S.sel)+'" aria-label="'+esc(s.name)+(full?' — مكتملة':' — حُدد '+pr.done+' من '+pr.total)+'">'+
+      '<span class="top"><span class="name">'+esc(s.name)+'</span>'+(full?'<span class="done-ic" aria-hidden="true">'+I.yes(16)+'</span>':'')+'</span>'+
+      '<span class="bot">'+tag(s)+(full?'<span class="done-b">مكتملة</span>':'<span class="count">حُدد '+pr.done+' من '+pr.total+'</span>')+'</span></button>';
+  }).join('');
+  var others = benSvcs().filter(function(s){return s.id!==S.sel;});
+  var c = {yes:0,wait:0,no:0};
+  var rows = others.map(function(s){
+    var v = S.rules[key(S.sel,s.id)];
+    if (v) c[v]++;
+    var st = v==='yes' ? 'معاً' : v==='wait' ? 'بعد انتهاء الأخرى' : v==='no' ? 'ممنوع' : 'غير محدد (يُعتبر: '+LABEL[S.fallback]+')';
+    return '<div class="row" data-v="'+(v||'')+'"><div class="info"><span class="title">'+esc(s.name)+tag(s)+'</span><span class="status">'+st+'</span></div>'+
+      '<div class="opts" role="group" aria-label="هل يُجمع مع '+esc(s.name)+'">'+['yes','wait','no'].map(function(o){
+        return '<button type="button" class="opt '+o+'" data-act="rset" data-id="'+s.id+'" data-val="'+o+'" data-fk="rset-'+s.id+'-'+o+'" aria-pressed="'+(v===o)+'">'+I[o](18)+LABEL[o]+'</button>';
+      }).join('')+'</div></div>';
+  }).join('');
+  var done = c.yes+c.wait+c.no;
+
+  var head = '<thead><tr><th></th>'+SERVICES.map(function(s){
+    return '<th scope="col" class="'+(s.assoc?'a':s.g)+(s.id===S.sel?' cur':'')+'"><span>'+esc(s.name)+'</span></th>';}).join('')+'</tr></thead>';
+  var body = '<tbody>'+SERVICES.map(function(r){
+    return '<tr><th scope="row" class="'+(r.assoc?'a':r.g)+(r.id===S.sel?' cur':'')+'">'+(r.assoc?I.lock(12)+' ':'')+esc(r.name)+'</th>'+SERVICES.map(function(col){
+      if (r.id===col.id) return '<td class="self"><span class="sr" hidden>نفس الخدمة</span></td>';
+      if (r.assoc||col.assoc) return '<td class="na" title="لا تحتاج تقديم من المستفيد — لا تنطبق"></td>';
+      var v = S.rules[key(r.id,col.id)];
+      var lab = r.name+' مع '+col.name+': '+(v?MXT[v]:'غير محدد (افتراضي: '+LABEL[S.fallback]+')');
+      var hl = (r.id===S.sel||col.id===S.sel) && v ? ' hl' : '';
+      return '<td class="'+(v||'')+hl+'" title="'+esc(lab)+'" aria-label="'+esc(lab)+'">'+(v?I[v](16):'·')+'</td>';
+    }).join('')+'</tr>';
+  }).join('')+'</tbody>';
+
+  var fbSel = '<select id="fb" class="sel" data-chg="fallback" data-fk="fb" aria-label="القاعدة الافتراضية"><option value="yes"'+(S.fallback==='yes'?' selected':'')+'>نعم</option><option value="wait"'+(S.fallback==='wait'?' selected':'')+'>بعد الانتهاء</option><option value="no"'+(S.fallback==='no'?' selected':'')+'>لا</option></select>';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+
+   '<section class="panel"><div class="panel-head"><h2>١. اختر الخدمة</h2><span class="hint"><b style="color:var(--yes)">اكتمل '+completeCount()+' من '+benSvcs().length+'</b> · '+I.lock(13)+' = لا تحتاج تقديم من المستفيد</span></div><div class="cards">'+cards+'</div></section>'+
+   '<div class="rules-split">'+
+   '<section class="panel" id="rq">'+
+     (progressOf(S.sel).done===progressOf(S.sel).total ? '<div class="done-banner">'+I.yes(18)+'<span><b>هذه الخدمة مكتملة.</b> يمكنك تعديل أي اختيار في أي وقت، ثم اضغط «حفظ».</span></div>' : '')+
+     '<h2 class="q-title">٢. المستفيد من <span>'+q(S.sel)+'</span>، هل يقدّم أيضاً على…</h2>'+
+     '<div class="key"><span class="k yes">'+I.yes(16)+'<b>نعم</b> الخدمتان معاً</span><span class="k wait">'+I.wait(16)+'<b>بعد الانتهاء</b> ينتظر</span><span class="k no">'+I.no(16)+'<b>لا</b> ممنوع</span></div>'+
+     '<div class="progress"><strong>حددت '+done+' من '+others.length+'</strong><div class="bar" aria-hidden="true"><i style="width:'+(done/others.length*100)+'%"></i></div><label class="fb-inline">غير المحدد يُعتبر: '+fbSel+'</label></div>'+
+     '<div class="rows">'+rows+'</div>'+
+     '<p class="note">اضغط «حفظ» في الأسفل في أي وقت · القاعدة تسري في الاتجاهين · اضغط الخيار مرة ثانية لإلغائه.</p>'+
+   '</section>'+
+   '<aside class="rules-out" aria-live="polite" aria-label="النتيجة">'+
+     '<span class="out-tag">'+I.eye(13)+'٣. النتيجة</span>'+
+     whenBlock(S.sel, true)+
+     '<button type="button" class="btn primary" data-act="go-try" data-id="'+S.sel+'">'+I.play(18)+'جرّبها كمستفيد</button>'+
+   '</aside>'+
+   '</div>'+
+   '<section class="panel"><div class="panel-head"><h2>٤. المصفوفة الكاملة</h2><span class="readonly">'+I.eye(14)+'للعرض فقط</span></div>'+
+     '<div class="mx-legend"><span><i class="sw" style="background:var(--yes-bg);border:1px solid var(--yes-bd)"></i>معاً</span><span><i class="sw" style="background:var(--wait-bg);border:1px solid var(--wait-bd)"></i>بعد الانتهاء</span><span><i class="sw" style="background:var(--no-bg);border:1px solid var(--no-bd)"></i>ممنوع</span><span><i class="sw" style="border:1px dashed var(--line2)"></i>غير محدد</span><span><i class="sw" style="background:repeating-linear-gradient(-45deg,#E5E7EB 0 3px,#FAFAFB 3px 6px)"></i>لا تحتاج تقديم من المستفيد</span></div>'+
+     '<div class="mx-scroll"><table class="mx" aria-label="مصفوفة التوافق بين الخدمات">'+head+body+'</table></div>'+
+   '</section></div>';
+}
+
+/* ================= TAB 3: TRY ================= */
+function piItem(s, r){
+  var k = r.kind, status, btn = '';
+  if (k==='assoc') status = S.ben[s.id]==='active' ? 'صرفتها لك الجمعية' : 'لا تحتاج تقديم من المستفيد — تقدمها الجمعية مباشرة';
+  else if (k==='have') status = 'لديك هذه الخدمة الآن';
+  else if (k==='queued') { var qi = conflicts(s.id); status = 'طلبك بانتظار انتهاء '+listNames(qi.waits.concat(qi.blockers)); }
+  else if (k==='paused') status = 'متوقفة مؤقتاً عن استقبال الطلبات';
+  else if (k==='blocked') status = 'غير متاحة لك مع '+listNames(r.blockers);
+  else if (k==='wait') { status = 'متاحة — تبدأ بعد انتهاء '+listNames(r.waits); btn = '<button type="button" class="pi-btn w" data-act="open" data-id="'+s.id+'" data-fk="open-'+s.id+'">قدّم</button>'; }
+  else { status = 'متاحة لك'; btn = '<button type="button" class="pi-btn" data-act="open" data-id="'+s.id+'" data-fk="open-'+s.id+'">قدّم الآن</button>'; }
+  if (!btn && (k==='assoc'||k==='blocked'||k==='paused')) btn = '<span class="pi-lock">'+I.lock(18)+'</span>';
+  return '<div class="pi k-'+k+(S.focus===s.id?' focused':'')+'">'+
+    '<button type="button" class="pi-main" data-act="focus" data-id="'+s.id+'" data-fk="focus-'+s.id+'" aria-label="'+esc(s.name)+': '+esc(status)+' — اعرض السبب">'+
+      '<span class="pi-ic '+gcls(s)+'">'+sIcon(s,18)+'</span><span class="pi-tx"><strong>'+esc(s.name)+'</strong><span>'+esc(status)+'</span></span></button>'+btn+'</div>';
+}
+function phoneHome(){
+  var mine=[], can=[], cannot=[], assocList=[];
+  SERVICES.forEach(function(s){
+    var r = evaluate(s.id);
+    if (r.kind==='have'||r.kind==='queued'||(r.kind==='assoc'&&S.ben[s.id]==='active')) mine.push(piItem(s,r));
+    else if (r.kind==='ok'||r.kind==='wait') can.push(piItem(s,r));
+    else if (r.kind==='assoc') assocList.push(piItem(s,r));
+    else cannot.push(piItem(s,r));
+  });
+  var notes = S.notes.map(function(n,i){ return '<div class="ph-note" role="status"><span class="ico">'+I.bell(18)+'</span><span>'+esc(n)+'</span><button type="button" data-act="dismiss" data-i="'+i+'" aria-label="إخفاء">×</button></div>'; }).join('');
+  return notes+
+   '<div class="ph-h">خدماتي وطلباتي</div>'+(mine.length?mine.join(''):'<div class="ph-empty">لا توجد لديك خدمات حالياً.</div>')+
+   '<div class="ph-h">خدمات يمكنك طلبها</div>'+(can.length?can.join(''):'<div class="ph-empty">لا توجد خدمات متاحة لك الآن.</div>')+
+   (cannot.length?'<div class="ph-h">غير متاحة لك الآن</div>'+cannot.join(''):'')+
+   (assocList.length?'<div class="ph-h">لا تحتاج تقديم من المستفيد</div><div class="ph-sub">تقدمها الجمعية مباشرة، ونتواصل معك إذا كنت مستحقاً</div>'+assocList.join(''):'');
+}
+function phoneApply(){
+  var s = svc(S.focus), r = evaluate(s.id);
+  if (r.kind!=='ok' && r.kind!=='wait'){ S.screen='home'; return phoneHome(); }
+  return '<button type="button" class="ph-back" data-act="home" data-fk="ph-back">'+I.back(18)+'رجوع للخدمات</button>'+
+   '<div class="ap-head"><span class="pi-ic '+gcls(s)+'" style="width:48px;height:48px">'+sIcon(s,24)+'</span><h4>'+esc(s.name)+'</h4></div>'+
+   '<p style="font-size:14px;color:var(--muted)">'+esc(s.brief)+'</p>'+
+   (r.kind==='wait' ? '<div class="ap-warn"><span class="ico">'+I.wait(18)+'</span><span>يمكنك التقديم الآن، لكن <b>سيبدأ طلبك بعد انتهاء '+esc(listNames(r.waits))+'</b>. سنبلغك تلقائياً.</span></div>' : '')+
+   '<div class="ap-box"><h5>ماذا ستحصل عليه؟</h5><p style="font-size:13.5px">'+esc(s.gets)+'</p></div>'+
+   '<div class="ap-box"><h5>المستندات المطلوبة</h5>'+s.docs.map(function(d,i){
+      var on = !!S.attached[s.id+i];
+      return '<div class="doc"><span>'+esc(d)+'</span><button type="button" data-act="attach" data-k="'+s.id+i+'" data-fk="att-'+s.id+i+'" aria-pressed="'+on+'">'+(on?'✓ تم الإرفاق':'إرفاق')+'</button></div>';
+   }).join('')+'</div>'+
+   '<button type="button" class="ph-primary" data-act="submit" data-fk="submit">'+(r.kind==='wait'?'إرسال الطلب (ينتظر)':'إرسال الطلب')+'</button>';
+}
+function phoneDone(){
+  var L = S.last || {}; var s = svc(L.id);
+  if (!s){ S.screen='home'; return phoneHome(); }
+  var wait = L.kind==='wait';
+  var steps = wait ? ['بالانتظار حتى انتهاء '+listNames(L.waits),'قيد المراجعة','الاعتماد','التنفيذ'] : ['تم الاستلام','قيد المراجعة','الاعتماد','التنفيذ'];
+  return '<div class="done"><div class="big" style="background:'+(wait?'var(--wait-bg)':'var(--yes-bg)')+';color:'+(wait?'var(--wait)':'var(--yes)')+'">'+(wait?I.wait(34):I.yes(34))+'</div>'+
+    '<h4>'+(wait?'طلبك محفوظ بالانتظار':'تم استلام طلبك')+'</h4>'+
+    '<p>'+(wait ? 'طلب '+esc(q(s.id))+' سيبدأ تلقائياً عند انتهاء '+esc(listNames(L.waits))+'.' : 'طلب '+esc(q(s.id))+' وصل للباحث الاجتماعي للمراجعة.')+'</p></div>'+
+   '<ol class="track">'+steps.map(function(t,i){
+      var cls = wait ? (i===0?'cur w':'') : (i===0?'done-s':(i===1?'cur':''));
+      return '<li class="'+cls+'"><i>'+(cls==='done-s'?'✓':'')+'</i>'+esc(t)+'</li>';
+   }).join('')+'</ol>'+
+   '<button type="button" class="ph-primary" data-act="home" data-fk="ph-home">العودة للخدمات</button>';
+}
+function explain(){
+  var s = svc(S.focus), r = evaluate(s.id), items = [];
+  function ck(cls, qn, ans, extra){ return '<li class="ck '+cls+'"><span class="cki">'+(cls==='pass'?I.yes(16):cls==='stop'?I.no(16):I.info(16))+'</span><div class="ckb"><span class="ckq">'+qn+'</span><span class="cka">'+ans+'</span>'+(extra||'')+'</div></li>'; }
+  var stop = false;
+  if (s.assoc){ items.push(ck('stop','هل يطلبها المستفيد بنفسه؟','لا، تقدمها الجمعية مباشرة. لذلك تظهر له مقفلة بدون زر تقديم.')); stop = true; }
+  else items.push(ck('pass','هل يطلبها المستفيد بنفسه؟','نعم، من البوابة.'));
+  if (!stop){
+    if (S.ben[s.id]==='active'){ items.push(ck('stop','هل لديه نفس الخدمة الآن؟','نعم، لذلك تظهر في «خدماتي» ولا يقدّم عليها مرة أخرى.')); stop = true; }
+    else if (inQueue(s.id)){ items.push(ck('stop','هل لديه طلب سابق عليها؟','نعم، طلبه محفوظ بالانتظار.')); stop = true; }
+    else items.push(ck('pass','هل لديه نفس الخدمة الآن؟','لا.'));
+  }
+  if (!stop){
+    if (S.paused[s.id]){ items.push(ck('stop','هل الخدمة تستقبل طلبات الآن؟','لا، أوقفتها الإدارة مؤقتاً من «إعدادات الخدمات».')); stop = true; }
+    else items.push(ck('pass','هل الخدمة تستقبل طلبات الآن؟','نعم.'));
+  }
+  if (!s.assoc){
+    var others = SERVICES.filter(function(x){return x.id!==s.id;}).sort(function(a,b){
+      var sa=(S.ben[a.id]==='active'?0:1)+(a.assoc?2:0), sb=(S.ben[b.id]==='active'?0:1)+(b.assoc?2:0); return sa-sb; });
+    var subs = others.map(function(x){
+      var st = S.ben[x.id]||'none';
+      var stChip = '<span class="st '+st+'">'+STATES[st]+'</span>';
+      if (x.assoc) return '<div class="sub"><span class="sn">'+I.lock(12)+' '+esc(x.name)+'</span>'+stChip+'<span class="se">لا تحتاج تقديم من المستفيد — لا تؤثر</span><span></span></div>';
+      var ru = ruleOf(s.id,x.id), active = st==='active';
+      var eff = !active ? (st==='closed'?'انتهت — لا تؤثر':'غير موجودة لديه — لا تؤثر') : (ru.v==='yes'?'لا تمنع — يقدّم معها':ru.v==='wait'?'ينتظر انتهاءها':'تمنع التقديم');
+      var sel = '<select data-chg="pair" data-id="'+x.id+'" data-fk="pair-'+x.id+'" aria-label="القاعدة بين '+esc(s.name)+' و'+esc(x.name)+'">'+
+        '<option value=""'+(!ru.explicit?' selected':'')+'>افتراضي ('+LABEL[S.fallback]+')</option>'+
+        ['yes','wait','no'].map(function(o){return '<option value="'+o+'"'+(ru.explicit&&ru.v===o?' selected':'')+'>'+LABEL[o]+'</option>';}).join('')+'</select>';
+      return '<div class="sub'+(active?' hit-'+ru.v:'')+'"><span class="sn">'+esc(x.name)+'</span>'+stChip+'<span class="se">'+eff+'</span>'+sel+'</div>';
+    }).join('');
+    var activeN = benSvcs().filter(function(x){return x.id!==s.id && S.ben[x.id]==='active';}).length;
+    var cls = stop ? 'info' : (r.blockers.length?'stop':'pass');
+    items.push(ck(cls,'فحص قواعد الجمع مع خدماته الأخرى', stop ? 'يظهر للمعرفة، ولا يؤثر الآن لأن الفحص توقف في خطوة سابقة.' : (activeN===0 ? 'لا توجد لديه خدمات أخرى الآن، فلا يوجد ما يمنع.' : 'لديه '+activeN+' خدمة/خدمات الآن. هذه نتيجة كل واحدة، ويمكنك تغيير القاعدة من هنا مباشرة:'), '<div class="subs">'+subs+'</div>'));
+  }
+  var V = {
+    ok:['يستطيع التقديم الآن','يرى زر «قدّم الآن».','بعد الإرسال يصل الطلب للباحث الاجتماعي مباشرة لدراسة الحالة.'],
+    wait:['يقدّم، ويُحفظ طلبه بالانتظار','يرى: «متاحة — تبدأ بعد انتهاء '+listNames(r.waits)+'».','لا يصل الطلب للموظف الآن. عند انتهاء '+listNames(r.waits)+' يتحول تلقائياً للمراجعة.'],
+    blocked:['لا يستطيع التقديم','يرى: «غير متاحة لك مع '+listNames(r.blockers)+'» بدون زر تقديم.','لا يصل أي طلب للموظف.'],
+    have:['لديه الخدمة','تظهر في «خدماتي».','الخدمة قيد المتابعة لدى الموظف المسؤول.'],
+    queued:['طلبه بالانتظار','يرى: «طلبك بانتظار انتهاء …».','يبدأ تلقائياً عند انتهاء الخدمة التي ينتظرها. جرّب تغيير حالتها إلى «انتهت» من الأعلى.'],
+    paused:['الخدمة متوقفة مؤقتاً','يرى: «متوقفة مؤقتاً عن استقبال الطلبات».','لا تصل طلبات جديدة حتى تُعاد الخدمة.'],
+    assoc:['لا تحتاج تقديم من المستفيد','يراها مقفلة مع عبارة «لا تحتاج تقديم من المستفيد».','الجمعية تحدد المستحقين وتصرفها بنفسها.']
+  }[r.kind];
+  var picker = '<label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:600">الخدمة المفحوصة:<select class="sel" data-chg="focus" data-fk="focus-sel">'+SERVICES.map(function(x){return '<option value="'+x.id+'"'+(x.id===S.focus?' selected':'')+'>'+esc(x.name)+(x.assoc?' (لا تحتاج تقديم من المستفيد)':'')+'</option>';}).join('')+'</select></label>';
+  return '<section class="panel" aria-live="polite"><div class="panel-head"><h2>لماذا يرى المستفيد هذا؟</h2><span class="hint">اضغط أي خدمة في الجوال</span></div>'+picker+
+    '<ol class="checks">'+items.join('')+'</ol>'+
+    '<div class="verdict v-'+r.kind+'"><strong>النتيجة: '+esc(V[0])+'</strong><p><b>المستفيد:</b> '+esc(V[1])+'</p><p><b>الموظف:</b> '+esc(V[2])+'</p></div></section>';
+}
+function benSettings(){
+  var rows = SERVICES.map(function(s){
+    var st = S.ben[s.id]||'none';
+    return '<div class="bs-row"><span class="bs-name"><span class="pi-ic '+gcls(s)+'" style="width:28px;height:28px;border-radius:8px">'+sIcon(s,15)+'</span>'+esc(s.name)+(s.assoc?' <span class="chan assoc">'+I.lock(11)+'لا تحتاج تقديم</span>':'')+'</span>'+
+      '<span class="seg" role="group" aria-label="حالة '+esc(s.name)+' لدى المستفيد">'+['none','active','closed'].map(function(o){
+        return '<button type="button" class="'+(o==='active'?'a':'')+'" data-act="ben" data-id="'+s.id+'" data-st="'+o+'" data-fk="ben-'+s.id+'-'+o+'" aria-pressed="'+(st===o)+'">'+STATES[o]+'</button>';
+      }).join('')+'</span></div>';
+  }).join('');
+  var qb = S.queue.length ? '<div class="queue-box"><strong>طلبات بالانتظار</strong>'+S.queue.map(function(it){
+      var c = conflicts(it.id);
+      return '<div><span>'+esc(q(it.id))+' ينتظر انتهاء '+esc(listNames(c.waits.concat(c.blockers)))+'</span><button type="button" data-act="unqueue" data-id="'+it.id+'">إلغاء الطلب</button></div>';
+    }).join('')+'</div>' : '';
+  return '<section class="panel"><div class="panel-head"><h2>ما لدى المستفيد الآن؟</h2><span class="hint">غيّر الحالة وشاهد الجوال يتغير</span></div>'+
+    '<div class="presets"><button type="button" class="btn" data-act="preset" data-p="new">مستفيد جديد</button><button type="button" class="btn" data-act="preset" data-p="rent">لديه سداد إيجار</button><button type="button" class="btn" data-act="preset" data-p="house">لديه سكن تنموي + سلة غذائية</button></div>'+
+    qb+'<div class="bs">'+rows+'</div></section>';
+}
+function svcSettings(){
+  return '<section class="panel"><div class="panel-head"><h2>إعدادات الخدمات</h2></div>'+
+    '<label class="fallback" for="fb2">'+I.info(18)+'<span>إذا لم تُحدد قاعدة بين خدمتين:</span><select id="fb2" class="sel" data-chg="fallback" data-fk="fb2"><option value="yes"'+(S.fallback==='yes'?' selected':'')+'>نعم</option><option value="wait"'+(S.fallback==='wait'?' selected':'')+'>بعد الانتهاء</option><option value="no"'+(S.fallback==='no'?' selected':'')+'>لا</option></select></label>'+
+    '<div>'+benSvcs().map(function(s){
+      var on = !S.paused[s.id];
+      return '<div class="sw-row"><span>'+esc(s.name)+'</span><span class="sw-state">'+(on?'تستقبل الطلبات':'متوقفة مؤقتاً')+'</span><button type="button" class="switch" role="switch" aria-checked="'+on+'" aria-label="استقبال طلبات '+esc(s.name)+'" data-act="pause" data-id="'+s.id+'" data-fk="pause-'+s.id+'"></button></div>';
+    }).join('')+'</div>'+
+    '<button type="button" class="btn" data-act="reset" style="align-self:flex-start">'+I.reset(18)+'مسح كل الاختيارات</button></section>';
+}
+function viewTry(){
+  var screen = S.screen==='apply' ? phoneApply() : S.screen==='done' ? phoneDone() : phoneHome();
+  var tip = 'اضغط أي خدمة في الجوال لترى سبب ظهورها هكذا، ثم غيّر الإعدادات بجانبه وشاهد النتيجة فوراً.';
+  if (S.screen==='done' && S.last && S.last.kind==='wait') tip = 'جرّب الآن: غيّر حالة '+listNames(S.last.waits)+' إلى «انتهت» وشاهد الطلب يبدأ تلقائياً.';
+  return '<div style="display:flex;flex-direction:column;gap:18px">'+
+    '<section class="panel" style="flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px"><span class="ico" style="color:var(--accent)">'+I.play(22)+'</span><p class="lead" style="flex:1 1 300px">هذه <b>تجربة للإدارة</b>: على اليمين ما يراه المستفيد في البوابة، وعلى اليسار تتحكم بما لديه من خدمات وبالقواعد، وترى سبب كل قرار.</p></section>'+
+    '<div class="try-grid">'+
+      '<div class="phone-col"><div class="phone" aria-label="معاينة بوابة المستفيد"><div class="ph-bar"><strong>بوابة المستفيد</strong><small>معاينة</small></div><div class="ph-body">'+screen+'</div></div>'+
+      '<div class="ph-tip"><span class="ico" style="color:var(--accent)">'+I.info(18)+'</span><span>'+esc(tip)+'</span></div></div>'+
+      '<div class="admin-col">'+explain()+benSettings()+svcSettings()+'</div>'+
+    '</div></div>';
+}
+
+/* ================= RENDER ================= */
+function render(){
+  var ae = document.activeElement, fk = ae && ae.getAttribute ? ae.getAttribute('data-fk') : null;
+  var tabs = document.querySelectorAll('.tab');
+  for (var i=0;i<tabs.length;i++) tabs[i].setAttribute('aria-selected', tabs[i].getAttribute('data-tab')===S.tab);
+  ['rules','try'].forEach(function(n){ $('tab-'+n).hidden = S.tab!==n; });
+  if (S.tab==='rules') $('tab-rules').innerHTML = viewRules();
+  if (S.tab==='try') $('tab-try').innerHTML = viewTry();
+  save();
+  $('savebar').innerHTML = saveBar();
+  if (fk){ var el = document.querySelector('[data-fk="'+fk+'"]'); if (el) el.focus({preventScroll:true}); }
+}
+function goTab(t){ S.tab = t; try { history.replaceState(null,'','#'+t); } catch(e){} render(); window.scrollTo({top:0}); }
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-act]'); if (!t || t.disabled) return;
+  var a = t.getAttribute('data-act'), id = t.getAttribute('data-id');
+  switch(a){
+    case 'tab': goTab(t.getAttribute('data-tab')); return;
+    case 'save': doSave(); return;
+    case 'card': S.card = id; render(); var d = $('detail'); if (d) d.scrollIntoView({behavior:'smooth', block:'start'}); return;
+    case 'go-rules': S.sel = id; goTab('rules'); return;
+    case 'go-try': S.focus = id; S.screen = 'home'; goTab('try'); return;
+    case 'rsel': S.sel = id; render(); var rq = $('rq'); if (rq) rq.scrollIntoView({behavior:'smooth', block:'start'}); return;
+    case 'rset': if (store.status==='loading') return; var k = key(S.sel,id), v = t.getAttribute('data-val'); if (S.rules[k]===v) delete S.rules[k]; else S.rules[k]=v; processQueue(); break;
+    case 'focus': S.focus = id; break;
+    case 'open': S.focus = id; S.screen = 'apply'; break;
+    case 'home': S.screen = 'home'; break;
+    case 'attach': var ak = t.getAttribute('data-k'); S.attached[ak] = !S.attached[ak]; break;
+    case 'submit':
+      var r = evaluate(S.focus);
+      if (r.kind==='ok'){ S.ben[S.focus] = 'active'; S.last = {id:S.focus, kind:'ok'}; S.screen='done'; }
+      else if (r.kind==='wait'){ S.queue.push({id:S.focus}); S.last = {id:S.focus, kind:'wait', waits:r.waits.slice()}; S.screen='done'; }
+      else S.screen='home';
+      break;
+    case 'dismiss': S.notes.splice(+t.getAttribute('data-i'),1); break;
+    case 'ben':
+      var st = t.getAttribute('data-st');
+      if (st==='none') delete S.ben[id]; else S.ben[id] = st;
+      if (st==='active') S.queue = S.queue.filter(function(x){return x.id!==id;});
+      processQueue(); break;
+    case 'unqueue': S.queue = S.queue.filter(function(x){return x.id!==id;}); break;
+    case 'pause': S.paused[id] = !S.paused[id]; if (!S.paused[id]) delete S.paused[id]; break;
+    case 'preset':
+      var p = t.getAttribute('data-p');
+      S.ben = p==='new' ? {} : p==='rent' ? {rent:'active'} : {house:'active', food:'active'};
+      S.queue = []; S.notes = []; S.screen = 'home'; break;
+    case 'reset': if (!confirm('مسح كل الاختيارات والبدء من جديد؟ (لن تُحذف من الحفظ المشترك إلا إذا ضغطت «حفظ» بعدها)')) return; var tab = S.tab; S = defaults(); S.tab = tab; break;
+    default: return;
+  }
+  render();
+});
+document.addEventListener('change', function(e){
+  var t = e.target, c = t.getAttribute && t.getAttribute('data-chg'); if (!c) return;
+  if (c==='fallback') S.fallback = t.value;
+  if (c==='focus'){ S.focus = t.value; S.screen = 'home'; }
+  if (c==='pair'){ var k = key(S.focus, t.getAttribute('data-id')); if (t.value) S.rules[k] = t.value; else delete S.rules[k]; }
+  processQueue(); render();
+});
+
+var h = (location.hash||'').replace('#','');
+if (h==='rules'||h==='try') S.tab = h;
+render();
+initStore();
+window.addEventListener('beforeunload', function(e){ if (store.write && isDirty() && store.status!=='loading'){ e.preventDefault(); e.returnValue = ''; } });
+})();
+</script>
+</body>
+</html>
